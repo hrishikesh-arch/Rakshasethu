@@ -9,7 +9,7 @@ App.SOS = {
         document.getElementById('sos-main-btn').style.transform = 'scale(0.92)';
         setTimeout(() => document.getElementById('sos-main-btn').style.transform = '', 150);
         if (this._tapCount === 1) {
-            this._tapTimer = setTimeout(() => { this._tapCount = 0; }, 600);
+            this._tapTimer = setTimeout(() => { this._tapCount = 0; }, 1000);
         }
         if (this._tapCount >= 2) {
             clearTimeout(this._tapTimer);
