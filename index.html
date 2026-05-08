@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RakshaSetu — Women Safety Alert & Live Tracking</title>
+    <meta name="description" content="Real-time women's safety app with SOS alerts, live GPS tracking, and emergency notifications.">
+    <meta name="theme-color" content="#7C5CFC">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="assets/logo.png">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+
+<!-- ============ ONBOARDING OVERLAY ============ -->
+<div id="onboarding-overlay" class="onboarding-overlay">
+    <img src="assets/logo.png" class="onboarding-logo" alt="RakshaSetu">
+    <h1 class="onboarding-title"><span>RakshaSetu</span></h1>
+    <p class="onboarding-sub">Your Safety, Our Priority</p>
+    <button class="btn btn-primary btn-lg" onclick="App.showSetup()" id="btn-get-started">
+        <i class="fa-solid fa-shield-heart"></i> Get Started
+    </button>
+</div>
+
+<!-- ============ SETUP MODAL ============ -->
+<div id="setup-modal" class="modal-overlay">
+    <div class="modal" style="max-width:520px;">
+        <h2><i class="fa-solid fa-user-shield" style="color:var(--accent);"></i> Setup Your Profile</h2>
+        <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" class="input" id="setup-name" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+            <label>Your Email</label>
+            <input type="email" class="input" id="setup-email" placeholder="your.email@gmail.com">
+        </div>
+        <div class="form-group">
+            <label>Your Phone Number</label>
+            <input type="tel" class="input" id="setup-phone" placeholder="+91 XXXXXXXXXX">
+        </div>
+        <h3 style="margin:1.5rem 0 1rem;font-size:1.1rem;">Add Emergency Contact</h3>
+        <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" class="input" id="setup-c-name" placeholder="e.g. Mom">
+        </div>
+        <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="tel" class="input" id="setup-c-phone" placeholder="+91 XXXXXXXXXX">
+        </div>
+        <div class="form-group">
+            <label>Contact Email</label>
+            <input type="email" class="input" id="setup-c-email" placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+            <label>Tier</label>
+            <select class="input select" id="setup-c-tier">
+                <option value="1">🔴 Tier 1 — Email + Live Location</option>
+                <option value="2">🟡 Tier 2 — Email Alert Only</option>
+            </select>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:1rem;">You can add more contacts later from Trusted Circle.</p>
+        <button class="btn btn-primary w-full btn-lg" onclick="App.completeSetup()" id="btn-save-profile">
+            Save & Continue <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+
+<!-- ============ STEALTH CALCULATOR OVERLAY ============ -->
+<div id="stealth-overlay" class="stealth-overlay">
+    <div class="calc-display" id="calc-display">0</div>
+    <div class="calc-grid">
+        <button class="calc-btn fn" onclick="App.Stealth.press('AC')">AC</button>
+        <button class="calc-btn fn" onclick="App.Stealth.press('±')">±</button>
+        <button class="calc-btn fn" onclick="App.Stealth.press('%')">%</button>
+        <button class="calc-btn op" onclick="App.Stealth.press('÷')">÷</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('7')">7</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('8')">8</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('9')">9</button>
+        <button class="calc-btn op" onclick="App.Stealth.press('×')">×</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('4')">4</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('5')">5</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('6')">6</button>
+        <button class="calc-btn op" onclick="App.Stealth.press('-')">−</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('1')">1</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('2')">2</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('3')">3</button>
+        <button class="calc-btn op" onclick="App.Stealth.press('+')">+</button>
+        <button class="calc-btn num zero" onclick="App.Stealth.press('0')">0</button>
+        <button class="calc-btn num" onclick="App.Stealth.press('.')">.</button>
+        <button class="calc-btn op" onclick="App.Stealth.press('=')">=</button>
+    </div>
+</div>
+
+<!-- ============ FAKE CALL OVERLAY ============ -->
+<div id="fake-call-overlay" class="fake-call-overlay">
+    <div class="fake-call-avatar-lg" id="fake-call-avatar-display"><i class="fa-solid fa-user"></i></div>
+    <div class="fake-call-name" id="fake-call-name-display">Mom</div>
+    <div class="fake-call-status" id="fake-call-status">Incoming Call...</div>
+    <div class="call-actions">
+        <button class="call-btn decline" onclick="App.FakeCall.decline()" id="btn-decline-call"><i class="fa-solid fa-phone-slash"></i></button>
+        <button class="call-btn accept" onclick="App.FakeCall.answer()" id="btn-accept-call"><i class="fa-solid fa-phone"></i></button>
+    </div>
+</div>
+
+<!-- ============ SOS ACTIVE OVERLAY ============ -->
+<div id="sos-overlay" class="sos-overlay">
+    <h1>🚨 SOS ALERT ACTIVE 🚨</h1>
+    <div class="sos-countdown" id="sos-countdown-display">3</div>
+    <p style="color:var(--text-secondary);font-size:1.1rem;" id="sos-countdown-label">seconds — tap to cancel</p>
+    <button class="btn btn-danger btn-lg" onclick="App.SOS.cancel()" id="btn-sos-cancel" style="margin:1.5rem 0;">
+        <i class="fa-solid fa-xmark"></i> CANCEL (I'M SAFE)
+    </button>
+    <ul class="sos-status-list" id="sos-status-list">
+        <li><i class="fa-solid fa-circle-check done"></i> Emergency Contacts Notified</li>
+        <li><i class="fa-solid fa-circle-check done"></i> Location Broadcasting</li>
+        <li><i class="fa-solid fa-circle active"></i> Audio Recording Active</li>
+    </ul>
+    <p style="color:var(--text-muted);margin-top:1rem;" id="sos-location-text">📍 Fetching location...</p>
+</div>
+
+<!-- ============ RECORDING INDICATOR ============ -->
+<div id="recording-indicator" class="recording-indicator">
+    <i class="fa-solid fa-circle"></i> REC <span id="rec-timer">00:00</span>
+</div>
+
+<!-- ============ CHECK-IN PROMPT ============ -->
+<div id="checkin-prompt" class="checkin-prompt">
+    <i class="fa-solid fa-bell" style="color:var(--warning);font-size:1.3rem;"></i>
+    <span style="flex:1;font-weight:600;">Safety Check-In: Are you safe?</span>
+    <button class="btn btn-teal btn-sm" onclick="App.CheckIn.confirmSafe()">I'm Safe ✓</button>
+    <button class="btn btn-danger btn-sm" onclick="App.SOS.trigger()">Need Help!</button>
+</div>
+
+<!-- ============ SAFE WALK BAR ============ -->
+<div id="safe-walk-bar" class="safe-walk-active">
+    <i class="fa-solid fa-person-walking" style="font-size:1.5rem;color:var(--teal);"></i>
+    <div style="flex:1;">
+        <div style="font-weight:600;font-size:0.9rem;">Safe Walk Active</div>
+        <div style="color:var(--text-muted);font-size:0.8rem;" id="walk-dest-text">To: Home</div>
+    </div>
+    <div class="walk-timer" id="walk-timer-display">--:--</div>
+    <button class="btn btn-teal btn-sm" onclick="App.SafeWalk.checkIn()">I've Arrived</button>
+    <button class="btn btn-ghost btn-sm" onclick="App.SafeWalk.stop()"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div class="app-container" id="app-container" style="display:none;">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/logo.png" alt="RakshaSetu">
+            <span>RakshaSetu</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="App.navigate('dashboard')" data-page="dashboard">
+                <i class="fa-solid fa-grid-2"></i> Dashboard
+            </div>
+            <div class="nav-item" onclick="App.navigate('map')" data-page="map">
+                <i class="fa-solid fa-map-location-dot"></i> Real-time Map
+            </div>
+            <div class="nav-item" onclick="App.navigate('circle')" data-page="circle">
+                <i class="fa-solid fa-user-group"></i> Trusted Circle
+            </div>
+            <div class="nav-item" onclick="App.navigate('tools')" data-page="tools">
+                <i class="fa-solid fa-shield-halved"></i> Safety Tools
+            </div>
+            <div class="nav-item" onclick="App.navigate('settings')" data-page="settings">
+                <i class="fa-solid fa-gear"></i> Settings
+            </div>
+        </nav>
+        <div class="sidebar-status">
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">Hello <span id="sidebar-name">User</span>,</p>
+            <p style="font-weight:700;margin-bottom:0.75rem;">Stay Safe.</p>
+            <div class="status-badge status-safe" id="sidebar-status"><i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> SECURED</div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+        <!-- PAGE: Dashboard -->
+        <div class="page active" id="page-dashboard">
+            <h1 style="font-size:1.8rem;margin-bottom:1.5rem;">Quick Actions</h1>
+            <div class="quick-actions">
+                <div class="action-card live-track" onclick="App.navigate('map')">
+                    <i class="fa-solid fa-location-arrow"></i><span>Live Tracking</span>
+                </div>
+                <div class="action-card check-in" onclick="App.Tools.openCheckin()">
+                    <i class="fa-solid fa-circle-check"></i><span>Safety Check-In</span>
+                </div>
+                <div class="action-card safe-walk" onclick="App.Tools.openSafeWalk()">
+                    <i class="fa-solid fa-route"></i><span>Safe Walk</span>
+                </div>
+                <div class="action-card fake-call" onclick="App.Tools.openFakeCall()">
+                    <i class="fa-solid fa-phone-volume"></i><span>Fake Call</span>
+                </div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="glass" style="padding:2rem;">
+                    <div class="sos-container">
+                        <button class="sos-btn" id="sos-main-btn" onmousedown="App.SOS.startHold()" onmouseup="App.SOS.endHold()" ontouchstart="App.SOS.startHold()" ontouchend="App.SOS.endHold()">SOS</button>
+                        <p class="sos-hint">HOLD FOR 3 SECONDS</p>
+                    </div>
+                </div>
+                <div class="glass" style="padding:1.5rem;">
+                    <div class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);"></i> Activity Log</div>
+                    <div class="activity-log" id="activity-log">
+                        <div class="log-item"><div class="log-dot blue"></div><span>App initialized</span><span class="log-time">Now</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: Map -->
+        <div class="page" id="page-map">
+            <h1 style="font-size:1.8rem;margin-bottom:1rem;">Real-time Map</h1>
+            <div id="map-container">
+                <div class="map-controls">
+                    <button class="btn btn-primary btn-sm" onclick="App.Map.centerOnUser()" id="btn-center-map"><i class="fa-solid fa-crosshairs"></i> Center</button>
+                    <button class="btn btn-teal btn-sm" onclick="App.Map.shareLocation()" id="btn-share-loc"><i class="fa-solid fa-share-nodes"></i> Share</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: Trusted Circle -->
+        <div class="page" id="page-circle">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                <h1 style="font-size:1.8rem;">Trusted Circle</h1>
+                <button class="btn btn-primary btn-sm" onclick="App.Contacts.showAddModal()" id="btn-add-contact"><i class="fa-solid fa-plus"></i> Add Contact</button>
+            </div>
+            <div id="contacts-list"></div>
+            <div id="no-contacts" class="text-center hidden" style="padding:4rem 2rem;">
+                <i class="fa-solid fa-user-group" style="font-size:3rem;color:var(--text-muted);margin-bottom:1rem;"></i>
+                <p style="color:var(--text-secondary);">No emergency contacts yet. Add your trusted people.</p>
+            </div>
+        </div>
+
+        <!-- PAGE: Safety Tools -->
+        <div class="page" id="page-tools">
+            <h1 style="font-size:1.8rem;margin-bottom:1.5rem;">Safety Tools</h1>
+            <div class="tools-grid">
+                <div class="tool-card" onclick="App.Tools.openSafeWalk()">
+                    <i class="fa-solid fa-route" style="color:var(--teal);"></i>
+                    <h3>Safe Walk Mode</h3>
+                    <p>Share your route. Auto-SOS if you don't arrive on time.</p>
+                </div>
+                <div class="tool-card" onclick="App.Tools.openFakeCall()">
+                    <i class="fa-solid fa-phone-volume" style="color:var(--warning);"></i>
+                    <h3>Fake Call</h3>
+                    <p>Simulate an incoming call to exit uncomfortable situations.</p>
+                </div>
+                <div class="tool-card" onclick="App.Tools.openRecorder()">
+                    <i class="fa-solid fa-microphone" style="color:var(--danger);"></i>
+                    <h3>Audio Recording</h3>
+                    <p>Record audio evidence. Auto-starts on SOS.</p>
+                </div>
+                <div class="tool-card" onclick="App.Tools.openCheckin()">
+                    <i class="fa-solid fa-circle-check" style="color:var(--success);"></i>
+                    <h3>Safety Check-In</h3>
+                    <p>Schedule check-ins. Miss it and alerts escalate automatically.</p>
+                </div>
+            </div>
+            <!-- Tool Panels -->
+            <div class="tool-panel" id="panel-safewalk">
+                <h2><i class="fa-solid fa-route" style="color:var(--teal);"></i> Safe Walk Planner</h2>
+                <div class="form-group"><label>Destination</label><input type="text" class="input" id="walk-dest" placeholder="Where are you going?"></div>
+                <div class="form-group"><label>Estimated Arrival (minutes)</label><input type="number" class="input" id="walk-eta" placeholder="30" min="1" max="480"></div>
+                <div class="form-group"><label>Share With</label>
+                    <select class="input select" id="walk-contact"></select>
+                </div>
+                <button class="btn btn-teal w-full" onclick="App.SafeWalk.start()" id="btn-start-walk"><i class="fa-solid fa-person-walking"></i> Start Safe Walk</button>
+            </div>
+            <div class="tool-panel" id="panel-fakecall">
+                <h2><i class="fa-solid fa-phone-volume" style="color:var(--warning);"></i> Fake Call</h2>
+                <div class="form-group"><label>Caller Name</label><input type="text" class="input" id="fake-caller" placeholder="Mom" value="Mom"></div>
+                <div class="form-group"><label>Delay</label>
+                    <select class="input select" id="fake-delay">
+                        <option value="0">Immediately</option>
+                        <option value="5">5 seconds</option>
+                        <option value="15" selected>15 seconds</option>
+                        <option value="30">30 seconds</option>
+                        <option value="60">1 minute</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary w-full" onclick="App.FakeCall.schedule()" id="btn-schedule-call"><i class="fa-solid fa-phone"></i> Schedule Fake Call</button>
+            </div>
+            <div class="tool-panel" id="panel-recorder">
+                <h2><i class="fa-solid fa-microphone" style="color:var(--danger);"></i> Audio Recorder</h2>
+                <div class="flex gap-2" style="margin-bottom:1.5rem;">
+                    <button class="btn btn-danger" onclick="App.Recorder.start()" id="btn-start-rec"><i class="fa-solid fa-circle"></i> Start Recording</button>
+                    <button class="btn btn-ghost" onclick="App.Recorder.stop()" id="btn-stop-rec"><i class="fa-solid fa-stop"></i> Stop</button>
+                </div>
+                <div id="recordings-list"></div>
+            </div>
+            <div class="tool-panel" id="panel-checkin">
+                <h2><i class="fa-solid fa-circle-check" style="color:var(--success);"></i> Safety Check-In</h2>
+                <div class="form-group"><label>I'll be safe by...</label><input type="time" class="input" id="checkin-time"></div>
+                <div class="form-group"><label>Notify</label>
+                    <select class="input select" id="checkin-contact"></select>
+                </div>
+                <button class="btn btn-teal w-full" onclick="App.CheckIn.schedule()" id="btn-set-checkin"><i class="fa-solid fa-clock"></i> Set Check-In</button>
+                <div id="active-checkins" style="margin-top:1.5rem;"></div>
+            </div>
+        </div>
+
+        <!-- PAGE: Settings -->
+        <div class="page" id="page-settings">
+            <h1 style="font-size:1.8rem;margin-bottom:1.5rem;">Settings</h1>
+            <div class="settings-section">
+                <h3>Safety Features</h3>
+                <div class="setting-row">
+                    <div><label>Shake Detection</label><small>Shake phone to trigger SOS</small></div>
+                    <label class="toggle"><input type="checkbox" id="setting-shake" checked onchange="App.Settings.save()"><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div><label>Voice Activation</label><small>Say "Help" or "Bachao" to trigger SOS</small></div>
+                    <label class="toggle"><input type="checkbox" id="setting-voice" onchange="App.Settings.save()"><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div><label>Auto-Record on SOS</label><small>Automatically record audio during SOS</small></div>
+                    <label class="toggle"><input type="checkbox" id="setting-autorecord" checked onchange="App.Settings.save()"><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <div><label>Stealth Mode</label><small>Open app as calculator (code: 911=)</small></div>
+                    <label class="toggle"><input type="checkbox" id="setting-stealth" onchange="App.Settings.save()"><span class="toggle-slider"></span></label>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>Emergency Numbers</h3>
+                <div class="setting-row"><div><label>Police</label></div><a href="tel:100" class="btn btn-ghost btn-sm"><i class="fa-solid fa-phone"></i> 100</a></div>
+                <div class="setting-row"><div><label>Emergency</label></div><a href="tel:112" class="btn btn-ghost btn-sm"><i class="fa-solid fa-phone"></i> 112</a></div>
+                <div class="setting-row"><div><label>Women Helpline</label></div><a href="tel:1091" class="btn btn-ghost btn-sm"><i class="fa-solid fa-phone"></i> 1091</a></div>
+            </div>
+            <div class="settings-section">
+                <h3>Profile</h3>
+                <div class="form-group"><label>Name</label><input type="text" class="input" id="settings-name"></div>
+                <div class="form-group"><label>Email</label><input type="email" class="input" id="settings-email"></div>
+                <div class="form-group"><label>Phone</label><input type="tel" class="input" id="settings-phone"></div>
+                <button class="btn btn-primary" onclick="App.Settings.saveProfile()">Save Profile</button>
+            </div>
+            <div class="settings-section">
+                <h3>Data</h3>
+                <button class="btn btn-ghost" onclick="App.Settings.exportData()" style="margin-right:0.5rem;"><i class="fa-solid fa-download"></i> Export Data</button>
+                <button class="btn btn-danger" onclick="App.Settings.clearData()"><i class="fa-solid fa-trash"></i> Clear All Data</button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobile-nav" style="display:none;">
+    <div class="mobile-nav-items">
+        <div class="mobile-nav-item active" onclick="App.navigate('dashboard')" data-page="dashboard"><i class="fa-solid fa-grid-2"></i>Home</div>
+        <div class="mobile-nav-item" onclick="App.navigate('map')" data-page="map"><i class="fa-solid fa-map"></i>Map</div>
+        <div class="mobile-nav-item" onclick="App.navigate('circle')" data-page="circle"><i class="fa-solid fa-users"></i>Circle</div>
+        <div class="mobile-nav-item" onclick="App.navigate('tools')" data-page="tools"><i class="fa-solid fa-shield"></i>Tools</div>
+        <div class="mobile-nav-item" onclick="App.navigate('settings')" data-page="settings"><i class="fa-solid fa-gear"></i>Settings</div>
+    </div>
+</nav>
+
+<!-- ADD CONTACT MODAL -->
+<div id="add-contact-modal" class="modal-overlay">
+    <div class="modal">
+        <h2><i class="fa-solid fa-user-plus" style="color:var(--accent);"></i> Add Contact</h2>
+        <div class="form-group"><label>Name</label><input type="text" class="input" id="add-c-name" placeholder="Contact name"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" class="input" id="add-c-phone" placeholder="+91 XXXXXXXXXX"></div>
+        <div class="form-group"><label>Email</label><input type="email" class="input" id="add-c-email" placeholder="email@example.com"></div>
+        <div class="form-group"><label>Relationship</label><input type="text" class="input" id="add-c-rel" placeholder="e.g. Mom, Friend, Sister"></div>
+        <div class="form-group"><label>Tier</label>
+            <select class="input select" id="add-c-tier">
+                <option value="1">🔴 Tier 1 — Full Alerts + Live Location</option>
+                <option value="2">🟡 Tier 2 — Email Alert Only</option>
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <button class="btn btn-primary" style="flex:1;" onclick="App.Contacts.add()">Save Contact</button>
+            <button class="btn btn-ghost" onclick="App.Contacts.hideAddModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="config.js"></script>
+<script src="app-core.js"></script>
+<script src="app-features.js"></script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+</body>
+</html>

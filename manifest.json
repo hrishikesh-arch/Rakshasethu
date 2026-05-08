@@ -1,0 +1,26 @@
+{
+    "name": "RakshaSetu - Women Safety Alert",
+    "short_name": "RakshaSetu",
+    "description": "Real-time women's safety application with SOS alerts, live GPS tracking, and emergency notifications.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#0A0A12",
+    "theme_color": "#7C5CFC",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "assets/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "assets/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["safety", "utilities"],
+    "lang": "en-IN"
+}
