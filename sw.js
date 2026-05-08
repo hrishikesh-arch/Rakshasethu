@@ -1,4 +1,4 @@
-const CACHE_NAME = 'raksha-setu-v2';
+const CACHE_NAME = 'raksha-setu-v3';
 const ASSETS = ['/', '/index.html', '/styles.css', '/config.js', '/app-core.js', '/app-features.js', '/assets/logo.png', '/manifest.json'];
 
 self.addEventListener('install', e => {

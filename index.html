@@ -202,8 +202,8 @@
             <div class="dashboard-grid">
                 <div class="glass" style="padding:2rem;">
                     <div class="sos-container">
-                        <button class="sos-btn" id="sos-main-btn" onmousedown="App.SOS.startHold()" onmouseup="App.SOS.endHold()" ontouchstart="App.SOS.startHold()" ontouchend="App.SOS.endHold()">SOS</button>
-                        <p class="sos-hint">HOLD FOR 3 SECONDS</p>
+                        <button class="sos-btn" id="sos-main-btn" onclick="App.SOS.handleTap()" ontouchend="App.SOS.handleTap(); event.preventDefault();">SOS</button>
+                        <p class="sos-hint">TAP TWICE TO TRIGGER SOS</p>
                     </div>
                 </div>
                 <div class="glass" style="padding:1.5rem;">
